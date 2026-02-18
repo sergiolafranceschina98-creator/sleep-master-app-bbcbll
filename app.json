@@ -1,7 +1,8 @@
+
 {
   "expo": {
     "name": "Sleep Master",
-    "slug": "Sleep Master",
+    "slug": "sleep-master",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/app-icon-uve.png",
@@ -44,7 +45,7 @@
       "expo-router",
       "expo-web-browser"
     ],
-    "scheme": "Sleep Master",
+    "scheme": "sleepmaster",
     "experiments": {
       "typedRoutes": true
     },
