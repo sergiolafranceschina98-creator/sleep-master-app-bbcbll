@@ -1,7 +1,8 @@
+
 {
   "expo": {
     "name": "Sleep Master",
-    "slug": "Sleep Master",
+    "slug": "sleep-master",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/app-icon-uve.png",
@@ -10,22 +11,30 @@
     "splash": {
       "image": "./assets/images/app-icon-uve.png",
       "resizeMode": "contain",
-      "backgroundColor": "#000000"
+      "backgroundColor": "#0F0E1A"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.Natively",
+      "bundleIdentifier": "com.sleepmaster.app",
+      "buildNumber": "1",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIRequiresFullScreen": false,
+        "UIStatusBarStyle": "UIStatusBarStyleLightContent",
+        "UIViewControllerBasedStatusBarAppearance": true
+      },
+      "config": {
+        "usesNonExemptEncryption": false
       }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/app-icon-uve.png",
-        "backgroundColor": "#000000"
+        "backgroundColor": "#0F0E1A"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.Natively"
+      "package": "com.sleepmaster.app",
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/images/final_quest_240x240.png",
@@ -36,7 +45,7 @@
       "expo-router",
       "expo-web-browser"
     ],
-    "scheme": "Sleep Master",
+    "scheme": "sleepmaster",
     "experiments": {
       "typedRoutes": true
     },

@@ -1,7 +1,7 @@
 
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform, ActivityIndicator } from "react-native";
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform, ActivityIndicator, useWindowDimensions } from "react-native";
 import { useTheme } from "@react-navigation/native";
-import React, { useEffect } from "react";
+import React from "react";
 import { Stack } from "expo-router";
 import { colors } from "@/styles/commonStyles";
 import { IconSymbol } from "@/components/IconSymbol";
@@ -11,6 +11,9 @@ import { formatDuration } from "@/utils/sleepStorage";
 
 export default function HomeScreen() {
   const theme = useTheme();
+  const dimensions = useWindowDimensions();
+  const isTablet = dimensions.width >= 768;
+  
   const { 
     currentSession, 
     lastNightSession, 
@@ -93,157 +96,165 @@ export default function HomeScreen() {
       />
       <ScrollView 
         style={[styles.container, { backgroundColor: colors.background }]}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          isTablet && styles.scrollContentTablet,
+          { paddingTop: Platform.OS === 'android' ? 20 : 10 }
+        ]}
       >
-        {/* Sleep Score Card */}
-        <View style={styles.scoreCard}>
-          <Text style={styles.cardTitle}>{hasData ? 'Last Night' : 'Sleep Score'}</Text>
-          <View style={styles.scoreCircle}>
-            <Text style={[styles.scoreNumber, { color: sleepScoreColor }]}>
-              {displayData.score}
+        <View style={[styles.contentWrapper, isTablet && styles.contentWrapperTablet]}>
+          {/* Sleep Score Card */}
+          <View style={[styles.scoreCard, isTablet && styles.scoreCardTablet]}>
+            <Text style={[styles.cardTitle, isTablet && styles.cardTitleTablet]}>
+              {hasData ? 'Last Night' : 'Sleep Score'}
             </Text>
-            <Text style={styles.scoreLabel}>Sleep Score</Text>
+            <View style={[styles.scoreCircle, isTablet && styles.scoreCircleTablet]}>
+              <Text style={[styles.scoreNumber, isTablet && styles.scoreNumberTablet, { color: sleepScoreColor }]}>
+                {displayData.score}
+              </Text>
+              <Text style={[styles.scoreLabel, isTablet && styles.scoreLabelTablet]}>Sleep Score</Text>
+            </View>
+            {!hasData && (
+              <Text style={[styles.noDataText, { color: colors.textSecondary }]}>
+                {startTrackingText}
+              </Text>
+            )}
+            {hasData && (
+              <View style={styles.statsRow}>
+                <View style={styles.statItem}>
+                  <IconSymbol 
+                    ios_icon_name="bed.double.fill" 
+                    android_material_icon_name="hotel" 
+                    size={isTablet ? 28 : 20} 
+                    color={colors.textSecondary} 
+                  />
+                  <Text style={[styles.statValue, isTablet && styles.statValueTablet]}>{displayData.duration}</Text>
+                  <Text style={[styles.statLabel, isTablet && styles.statLabelTablet]}>Duration</Text>
+                </View>
+                <View style={styles.statItem}>
+                  <IconSymbol 
+                    ios_icon_name="moon.zzz.fill" 
+                    android_material_icon_name="nightlight" 
+                    size={isTablet ? 28 : 20} 
+                    color={colors.textSecondary} 
+                  />
+                  <Text style={[styles.statValue, isTablet && styles.statValueTablet]}>{displayData.deepSleep}</Text>
+                  <Text style={[styles.statLabel, isTablet && styles.statLabelTablet]}>Deep Sleep</Text>
+                </View>
+                <View style={styles.statItem}>
+                  <IconSymbol 
+                    ios_icon_name="waveform" 
+                    android_material_icon_name="show-chart" 
+                    size={isTablet ? 28 : 20} 
+                    color={colors.textSecondary} 
+                  />
+                  <Text style={[styles.statValue, isTablet && styles.statValueTablet]}>{displayData.awakenings}</Text>
+                  <Text style={[styles.statLabel, isTablet && styles.statLabelTablet]}>Awakenings</Text>
+                </View>
+              </View>
+            )}
           </View>
-          {!hasData && (
-            <Text style={[styles.noDataText, { color: colors.textSecondary }]}>
-              {startTrackingText}
-            </Text>
-          )}
-          {hasData && (
-            <View style={styles.statsRow}>
-              <View style={styles.statItem}>
-                <IconSymbol 
-                  ios_icon_name="bed.double.fill" 
-                  android_material_icon_name="hotel" 
-                  size={20} 
-                  color={colors.textSecondary} 
-                />
-                <Text style={styles.statValue}>{displayData.duration}</Text>
-                <Text style={styles.statLabel}>Duration</Text>
-              </View>
-              <View style={styles.statItem}>
-                <IconSymbol 
-                  ios_icon_name="moon.zzz.fill" 
-                  android_material_icon_name="nightlight" 
-                  size={20} 
-                  color={colors.textSecondary} 
-                />
-                <Text style={styles.statValue}>{displayData.deepSleep}</Text>
-                <Text style={styles.statLabel}>Deep Sleep</Text>
-              </View>
-              <View style={styles.statItem}>
-                <IconSymbol 
-                  ios_icon_name="waveform" 
-                  android_material_icon_name="show-chart" 
-                  size={20} 
-                  color={colors.textSecondary} 
-                />
-                <Text style={styles.statValue}>{displayData.awakenings}</Text>
-                <Text style={styles.statLabel}>Awakenings</Text>
-              </View>
-            </View>
-          )}
-        </View>
 
-        {/* Sleep Quality Breakdown */}
-        {hasData && (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Sleep Breakdown</Text>
-            <View style={styles.breakdownItem}>
-              <View style={styles.breakdownRow}>
-                <View style={[styles.breakdownDot, { backgroundColor: colors.primary }]} />
-                <Text style={styles.breakdownLabel}>Deep Sleep</Text>
+          {/* Sleep Quality Breakdown */}
+          {hasData && (
+            <View style={[styles.card, isTablet && styles.cardTablet]}>
+              <Text style={[styles.cardTitle, isTablet && styles.cardTitleTablet]}>Sleep Breakdown</Text>
+              <View style={styles.breakdownItem}>
+                <View style={styles.breakdownRow}>
+                  <View style={[styles.breakdownDot, { backgroundColor: colors.primary }]} />
+                  <Text style={[styles.breakdownLabel, isTablet && styles.breakdownLabelTablet]}>Deep Sleep</Text>
+                </View>
+                <Text style={[styles.breakdownValue, isTablet && styles.breakdownValueTablet]}>{displayData.deepSleep}</Text>
               </View>
-              <Text style={styles.breakdownValue}>{displayData.deepSleep}</Text>
+              <View style={styles.breakdownItem}>
+                <View style={styles.breakdownRow}>
+                  <View style={[styles.breakdownDot, { backgroundColor: colors.secondary }]} />
+                  <Text style={[styles.breakdownLabel, isTablet && styles.breakdownLabelTablet]}>Light Sleep</Text>
+                </View>
+                <Text style={[styles.breakdownValue, isTablet && styles.breakdownValueTablet]}>{displayData.lightSleep}</Text>
+              </View>
+              <View style={styles.breakdownItem}>
+                <View style={styles.breakdownRow}>
+                  <View style={[styles.breakdownDot, { backgroundColor: colors.textSecondary }]} />
+                  <Text style={[styles.breakdownLabel, isTablet && styles.breakdownLabelTablet]}>Awake</Text>
+                </View>
+                <Text style={[styles.breakdownValue, isTablet && styles.breakdownValueTablet]}>
+                  {formatDuration((lastNightSession?.duration || 0) - (lastNightSession?.deepSleep || 0) - (lastNightSession?.lightSleep || 0))}
+                </Text>
+              </View>
             </View>
-            <View style={styles.breakdownItem}>
-              <View style={styles.breakdownRow}>
-                <View style={[styles.breakdownDot, { backgroundColor: colors.secondary }]} />
-                <Text style={styles.breakdownLabel}>Light Sleep</Text>
-              </View>
-              <Text style={styles.breakdownValue}>{displayData.lightSleep}</Text>
+          )}
+
+          {/* Daily Tip */}
+          <View style={[styles.card, styles.tipCard, isTablet && styles.cardTablet]}>
+            <View style={styles.tipHeader}>
+              <IconSymbol 
+                ios_icon_name="lightbulb.fill" 
+                android_material_icon_name="lightbulb" 
+                size={isTablet ? 32 : 24} 
+                color={colors.accent} 
+              />
+              <Text style={[styles.tipTitle, isTablet && styles.tipTitleTablet]}>Today&apos;s Tip</Text>
             </View>
-            <View style={styles.breakdownItem}>
-              <View style={styles.breakdownRow}>
-                <View style={[styles.breakdownDot, { backgroundColor: colors.textSecondary }]} />
-                <Text style={styles.breakdownLabel}>Awake</Text>
+            <Text style={[styles.tipText, isTablet && styles.tipTextTablet]}>{sleepTip}</Text>
+          </View>
+
+          {/* Suggested Bedtime */}
+          <View style={[styles.card, isTablet && styles.cardTablet]}>
+            <Text style={[styles.cardTitle, isTablet && styles.cardTitleTablet]}>Tonight</Text>
+            <View style={styles.bedtimeRow}>
+              <IconSymbol 
+                ios_icon_name="moon.stars.fill" 
+                android_material_icon_name="bedtime" 
+                size={isTablet ? 48 : 32} 
+                color={colors.accent} 
+              />
+              <View style={styles.bedtimeInfo}>
+                <Text style={[styles.bedtimeLabel, isTablet && styles.bedtimeLabelTablet]}>Suggested Bedtime</Text>
+                <Text style={[styles.bedtimeValue, isTablet && styles.bedtimeValueTablet]}>{suggestedBedtime}</Text>
               </View>
-              <Text style={styles.breakdownValue}>
-                {formatDuration((lastNightSession?.duration || 0) - (lastNightSession?.deepSleep || 0) - (lastNightSession?.lightSleep || 0))}
+            </View>
+          </View>
+
+          {/* Start Sleep Button */}
+          <TouchableOpacity 
+            style={[styles.sleepButton, isSleeping && styles.sleepButtonActive]}
+            onPress={handleStartSleep}
+            activeOpacity={0.8}
+          >
+            <LinearGradient
+              colors={isSleeping ? [colors.error, '#C85A5A'] : [colors.primary, colors.secondary]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={[styles.sleepButtonGradient, isTablet && styles.sleepButtonGradientTablet]}
+            >
+              <IconSymbol 
+                ios_icon_name={isSleeping ? "stop.fill" : "moon.stars.fill"} 
+                android_material_icon_name={isSleeping ? "stop" : "bedtime"} 
+                size={isTablet ? 40 : 32} 
+                color={colors.text} 
+              />
+              <Text style={[styles.sleepButtonText, isTablet && styles.sleepButtonTextTablet]}>
+                {isSleeping ? 'Stop Sleep Tracking' : 'Start Sleep'}
+              </Text>
+            </LinearGradient>
+          </TouchableOpacity>
+
+          {/* Current Session Info */}
+          {isSleeping && currentSession && (
+            <View style={[styles.card, styles.activeSessionCard, isTablet && styles.cardTablet]}>
+              <View style={styles.activeSessionHeader}>
+                <View style={styles.pulsingDot} />
+                <Text style={[styles.activeSessionText, isTablet && styles.activeSessionTextTablet]}>Sleep tracking active</Text>
+              </View>
+              <Text style={[styles.activeSessionTime, isTablet && styles.activeSessionTimeTablet, { color: colors.textSecondary }]}>
+                Started at {new Date(currentSession.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </Text>
             </View>
-          </View>
-        )}
+          )}
 
-        {/* Daily Tip */}
-        <View style={[styles.card, styles.tipCard]}>
-          <View style={styles.tipHeader}>
-            <IconSymbol 
-              ios_icon_name="lightbulb.fill" 
-              android_material_icon_name="lightbulb" 
-              size={24} 
-              color={colors.accent} 
-            />
-            <Text style={styles.tipTitle}>Today's Tip</Text>
-          </View>
-          <Text style={styles.tipText}>{sleepTip}</Text>
+          <View style={styles.bottomSpacer} />
         </View>
-
-        {/* Suggested Bedtime */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Tonight</Text>
-          <View style={styles.bedtimeRow}>
-            <IconSymbol 
-              ios_icon_name="moon.stars.fill" 
-              android_material_icon_name="bedtime" 
-              size={32} 
-              color={colors.accent} 
-            />
-            <View style={styles.bedtimeInfo}>
-              <Text style={styles.bedtimeLabel}>Suggested Bedtime</Text>
-              <Text style={styles.bedtimeValue}>{suggestedBedtime}</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Start Sleep Button */}
-        <TouchableOpacity 
-          style={[styles.sleepButton, isSleeping && styles.sleepButtonActive]}
-          onPress={handleStartSleep}
-          activeOpacity={0.8}
-        >
-          <LinearGradient
-            colors={isSleeping ? [colors.error, '#C85A5A'] : [colors.primary, colors.secondary]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.sleepButtonGradient}
-          >
-            <IconSymbol 
-              ios_icon_name={isSleeping ? "stop.fill" : "moon.stars.fill"} 
-              android_material_icon_name={isSleeping ? "stop" : "bedtime"} 
-              size={32} 
-              color={colors.text} 
-            />
-            <Text style={styles.sleepButtonText}>
-              {isSleeping ? 'Stop Sleep Tracking' : 'Start Sleep'}
-            </Text>
-          </LinearGradient>
-        </TouchableOpacity>
-
-        {/* Current Session Info */}
-        {isSleeping && currentSession && (
-          <View style={[styles.card, styles.activeSessionCard]}>
-            <View style={styles.activeSessionHeader}>
-              <View style={styles.pulsingDot} />
-              <Text style={styles.activeSessionText}>Sleep tracking active</Text>
-            </View>
-            <Text style={[styles.activeSessionTime, { color: colors.textSecondary }]}>
-              Started at {new Date(currentSession.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-            </Text>
-          </View>
-        )}
-
-        <View style={styles.bottomSpacer} />
       </ScrollView>
     </React.Fragment>
   );
@@ -265,7 +276,17 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 20,
-    paddingTop: Platform.OS === 'android' ? 20 : 10,
+  },
+  scrollContentTablet: {
+    padding: 40,
+    alignItems: 'center',
+  },
+  contentWrapper: {
+    width: '100%',
+  },
+  contentWrapperTablet: {
+    maxWidth: 800,
+    width: '100%',
   },
   scoreCard: {
     backgroundColor: colors.card,
@@ -279,11 +300,19 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 6,
   },
+  scoreCardTablet: {
+    padding: 40,
+    borderRadius: 28,
+  },
   cardTitle: {
     fontSize: 18,
     fontWeight: '700',
     color: colors.text,
     marginBottom: 16,
+  },
+  cardTitleTablet: {
+    fontSize: 24,
+    marginBottom: 24,
   },
   scoreCircle: {
     width: 160,
@@ -296,16 +325,30 @@ const styles = StyleSheet.create({
     borderWidth: 8,
     borderColor: colors.primary,
   },
+  scoreCircleTablet: {
+    width: 220,
+    height: 220,
+    borderRadius: 110,
+    borderWidth: 12,
+    marginBottom: 32,
+  },
   scoreNumber: {
     fontSize: 56,
     fontWeight: '800',
     color: colors.success,
+  },
+  scoreNumberTablet: {
+    fontSize: 80,
   },
   scoreLabel: {
     fontSize: 14,
     fontWeight: '600',
     color: colors.textSecondary,
     marginTop: 4,
+  },
+  scoreLabelTablet: {
+    fontSize: 18,
+    marginTop: 8,
   },
   noDataText: {
     fontSize: 14,
@@ -328,11 +371,19 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginTop: 8,
   },
+  statValueTablet: {
+    fontSize: 20,
+    marginTop: 12,
+  },
   statLabel: {
     fontSize: 12,
     fontWeight: '500',
     color: colors.textSecondary,
     marginTop: 4,
+  },
+  statLabelTablet: {
+    fontSize: 16,
+    marginTop: 6,
   },
   card: {
     backgroundColor: colors.card,
@@ -344,6 +395,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 3,
+  },
+  cardTablet: {
+    padding: 28,
+    borderRadius: 20,
   },
   breakdownItem: {
     flexDirection: 'row',
@@ -366,10 +421,16 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.text,
   },
+  breakdownLabelTablet: {
+    fontSize: 18,
+  },
   breakdownValue: {
     fontSize: 15,
     fontWeight: '700',
     color: colors.textSecondary,
+  },
+  breakdownValueTablet: {
+    fontSize: 18,
   },
   tipCard: {
     backgroundColor: colors.cardLight,
@@ -387,11 +448,19 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginLeft: 8,
   },
+  tipTitleTablet: {
+    fontSize: 20,
+    marginLeft: 12,
+  },
   tipText: {
     fontSize: 14,
     fontWeight: '500',
     color: colors.textSecondary,
     lineHeight: 20,
+  },
+  tipTextTablet: {
+    fontSize: 18,
+    lineHeight: 26,
   },
   bedtimeRow: {
     flexDirection: 'row',
@@ -407,11 +476,18 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.textSecondary,
   },
+  bedtimeLabelTablet: {
+    fontSize: 18,
+  },
   bedtimeValue: {
     fontSize: 24,
     fontWeight: '800',
     color: colors.text,
     marginTop: 4,
+  },
+  bedtimeValueTablet: {
+    fontSize: 32,
+    marginTop: 6,
   },
   sleepButton: {
     borderRadius: 20,
@@ -433,11 +509,19 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     paddingHorizontal: 32,
   },
+  sleepButtonGradientTablet: {
+    paddingVertical: 28,
+    paddingHorizontal: 48,
+  },
   sleepButtonText: {
     fontSize: 18,
     fontWeight: '700',
     color: colors.text,
     marginLeft: 12,
+  },
+  sleepButtonTextTablet: {
+    fontSize: 24,
+    marginLeft: 16,
   },
   activeSessionCard: {
     backgroundColor: colors.primary,
@@ -461,9 +545,15 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.text,
   },
+  activeSessionTextTablet: {
+    fontSize: 20,
+  },
   activeSessionTime: {
     fontSize: 14,
     fontWeight: '500',
+  },
+  activeSessionTimeTablet: {
+    fontSize: 18,
   },
   bottomSpacer: {
     height: 100,
