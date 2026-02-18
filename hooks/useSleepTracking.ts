@@ -52,7 +52,7 @@ export const useSleepTracking = () => {
 
   const startSleep = useCallback(async () => {
     try {
-      console.log('User starting sleep tracking...');
+      console.log('🌙 User starting sleep tracking...');
       const newSession: SleepSession = {
         id: generateSessionId(),
         startTime: new Date().toISOString(),
@@ -61,11 +61,11 @@ export const useSleepTracking = () => {
       await saveCurrentSession(newSession);
       setCurrentSession(newSession);
       setIsSleeping(true);
-      console.log('Sleep tracking started:', newSession);
+      console.log('✅ Sleep tracking started successfully:', newSession.id);
       
       return newSession;
     } catch (error) {
-      console.error('Error starting sleep:', error);
+      console.error('❌ Error starting sleep:', error);
       throw error;
     }
   }, []);
@@ -73,11 +73,11 @@ export const useSleepTracking = () => {
   const stopSleep = useCallback(async () => {
     try {
       if (!currentSession) {
-        console.warn('No active session to stop');
+        console.warn('⚠️ No active session to stop');
         return null;
       }
       
-      console.log('User stopping sleep tracking...');
+      console.log('🛑 User stopping sleep tracking...');
       const endTime = new Date().toISOString();
       const duration = calculateSleepDuration(currentSession.startTime, endTime);
       
@@ -110,15 +110,16 @@ export const useSleepTracking = () => {
       setIsSleeping(false);
       setLastNightSession(completedSession);
       
-      console.log('Sleep tracking stopped:', completedSession);
+      console.log('✅ Sleep tracking stopped successfully. Score:', completedSession.score);
       return completedSession;
     } catch (error) {
-      console.error('Error stopping sleep:', error);
+      console.error('❌ Error stopping sleep:', error);
       throw error;
     }
   }, [currentSession]);
 
   const toggleSleep = useCallback(async () => {
+    console.log('🔄 Toggle sleep called. Current state - isSleeping:', isSleeping);
     if (isSleeping) {
       return await stopSleep();
     } else {

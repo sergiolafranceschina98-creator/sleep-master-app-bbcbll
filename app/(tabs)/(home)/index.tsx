@@ -1,7 +1,7 @@
 
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform, ActivityIndicator, useWindowDimensions } from "react-native";
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform, ActivityIndicator, useWindowDimensions, Alert } from "react-native";
 import { useTheme } from "@react-navigation/native";
-import React from "react";
+import React, { useState } from "react";
 import { Stack } from "expo-router";
 import { colors } from "@/styles/commonStyles";
 import { IconSymbol } from "@/components/IconSymbol";
@@ -13,6 +13,7 @@ export default function HomeScreen() {
   const theme = useTheme();
   const dimensions = useWindowDimensions();
   const isTablet = dimensions.width >= 768;
+  const [isProcessing, setIsProcessing] = useState(false);
   
   const { 
     currentSession, 
@@ -43,11 +44,24 @@ export default function HomeScreen() {
   const sleepScoreColor = displayData.score >= 80 ? colors.success : displayData.score >= 60 ? colors.warning : colors.error;
 
   const handleStartSleep = async () => {
+    if (isProcessing) {
+      console.log('⏳ Already processing, ignoring tap');
+      return;
+    }
+
     try {
-      console.log('User tapped Start Sleep button');
+      setIsProcessing(true);
+      console.log('👆 User tapped Start Sleep button');
+      console.log('Current state - isSleeping:', isSleeping);
+      
       await toggleSleep();
+      
+      console.log('✅ Toggle sleep completed successfully');
     } catch (error) {
-      console.error('Error toggling sleep:', error);
+      console.error('❌ Error toggling sleep:', error);
+      Alert.alert('Error', 'Failed to toggle sleep tracking. Please try again.');
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -80,6 +94,8 @@ export default function HomeScreen() {
       </React.Fragment>
     );
   }
+
+  const buttonText = isSleeping ? 'Stop Sleep Tracking' : 'Start Sleep';
 
   return (
     <React.Fragment>
@@ -218,9 +234,14 @@ export default function HomeScreen() {
 
           {/* Start Sleep Button */}
           <TouchableOpacity 
-            style={[styles.sleepButton, isSleeping && styles.sleepButtonActive]}
+            style={[
+              styles.sleepButton, 
+              isSleeping && styles.sleepButtonActive,
+              isProcessing && styles.sleepButtonDisabled
+            ]}
             onPress={handleStartSleep}
-            activeOpacity={0.8}
+            activeOpacity={0.7}
+            disabled={isProcessing}
           >
             <LinearGradient
               colors={isSleeping ? [colors.error, '#C85A5A'] : [colors.primary, colors.secondary]}
@@ -228,14 +249,18 @@ export default function HomeScreen() {
               end={{ x: 1, y: 1 }}
               style={[styles.sleepButtonGradient, isTablet && styles.sleepButtonGradientTablet]}
             >
-              <IconSymbol 
-                ios_icon_name={isSleeping ? "stop.fill" : "moon.stars.fill"} 
-                android_material_icon_name={isSleeping ? "stop" : "bedtime"} 
-                size={isTablet ? 40 : 32} 
-                color={colors.text} 
-              />
+              {isProcessing ? (
+                <ActivityIndicator size="small" color={colors.text} />
+              ) : (
+                <IconSymbol 
+                  ios_icon_name={isSleeping ? "stop.fill" : "moon.stars.fill"} 
+                  android_material_icon_name={isSleeping ? "stop" : "bedtime"} 
+                  size={isTablet ? 40 : 32} 
+                  color={colors.text} 
+                />
+              )}
               <Text style={[styles.sleepButtonText, isTablet && styles.sleepButtonTextTablet]}>
-                {isSleeping ? 'Stop Sleep Tracking' : 'Start Sleep'}
+                {buttonText}
               </Text>
             </LinearGradient>
           </TouchableOpacity>
@@ -501,6 +526,9 @@ const styles = StyleSheet.create({
   },
   sleepButtonActive: {
     shadowColor: colors.error,
+  },
+  sleepButtonDisabled: {
+    opacity: 0.7,
   },
   sleepButtonGradient: {
     flexDirection: 'row',
